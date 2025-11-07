@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pickle
 
 app = Flask(__name__)
@@ -11,7 +11,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route('/predict', methods=['post'])
+@app.route('/api/predict', methods=['post'])
 def predict():
     email = request.form.get('email')
     # predict email
@@ -20,6 +20,18 @@ def predict():
     prediction = clf.predict(X)
     prediction = 1 if prediction == 1 else -1
     return render_template('index.html', response=prediction)
+
+
+@app.route("/api/predict", methods=["POST"])
+def app_predict():
+    data = request.get_json(force=True)
+    # predict email
+    email = data["content"]
+    X = cv.transform([email])
+    prediction = clf.predict(X)
+    prediction = 1 if prediction == 1 else -1
+    return jsonify({prediction: prediction})
+    
 
 
 if __name__ == "__main__":
